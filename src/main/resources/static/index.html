@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>IP Tracker - Add IP</title>
+    <link rel="stylesheet" href="index.css" />
+    <style>
+        /* Existing styles */
+        .nav-button, #logoutBtn {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 10px 5px 0 0;
+            background-color: #ef6724;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .nav-button:hover, #logoutBtn:hover {
+            background-color: #bd2331;
+        }
+        .navigation {
+            margin-top: 20px;
+        }
+
+        /* NEW ADMIN Card Styles */
+        #adminActionContainer {
+            position: absolute;
+            
+            right: 150px;
+            background: linear-gradient(120deg, #1e4489 0%, #3FA8ED 20%, #5a2e9d 85%);
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            width: 280px;
+            display: none;
+            z-index: 800;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            
+        }
+
+        #adminActionContainer input#adminIdentifier {
+            width: 85%;
+            padding: 10px 12px;
+            margin-bottom: 12px;
+            border: 1.8px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        #adminActionContainer input#adminIdentifier:focus {
+            border-color: #ef6724;
+            outline: none;
+        }
+        
+
+        #adminActionContainer button {
+            width: 40%;
+            padding: 10px 0;
+            font-weight: 700;
+            font-size: 14px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            user-select: none;
+        }
+
+        #adminActionContainer button#addAdminBtn {
+            background-color: #ef6724;
+            color: white;
+            margin-right: 4%;
+        }
+
+        #adminActionContainer button#addAdminBtn:hover {
+            background-color: #bd2331;
+            transform: scale(1.05);
+        }
+
+        #adminActionContainer button#removeAdminBtn {
+            background-color: #666666;
+            color: white;
+        }
+
+        #adminActionContainer button#removeAdminBtn:hover {
+            background-color: #444444;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container-vertical1" style="position: relative;">
+            <img src="suprajit_logo_BG.png" alt="Suprajit Logo" class="suprajit-logo" />
+            <div class="title-and-updated">
+                <h1>IP HEALTH STATUS</h1>
+            </div>
+            <button id="newAdminBtn" class="nav-button" style="position: absolute; top: 10px; right: 30px;">
+                NEW ADMIN
+            </button>
+
+            <!-- NEW ADMIN input & buttons container -->
+            <div id="adminActionContainer">
+                <input type="text" id="adminIdentifier" placeholder="Enter username or email" />
+                <button id="addAdminBtn" class="nav-button">Add Admin</button>
+                <button id="removeAdminBtn" class="nav-button">Remove Admin</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="form-section">
+            <form id="ipForm">
+                <h2>Add New IP</h2>
+                <input type="text" id="location" placeholder="Enter Location Name" required />
+                <input type="text" id="ipAddress" placeholder="Enter IP Address" required />
+                <button type="submit">Add</button>
+            </form>
+        </section>
+
+        <section class="list-section">
+            <h2>Stored IP Addresses</h2>
+            <table id="ipTable">
+                <thead>
+                    <tr>
+                        <th>Location</th>
+                        <th>IP Address</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Dynamic rows -->
+                </tbody>
+            </table>
+        </section>
+
+        <div class="navigation">
+            <a href="status.html" class="nav-button">Go to Status Page</a>
+            <button id="logoutBtn">Logout / Go to Login</button>
+        </div>
+    </main>
+
+    <script src="script-index.js"></script>
+    <script>
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            sessionStorage.removeItem('currentUser');
+            window.location.href = "auth.html";
+        });
+    </script>
+</body>
+</html>
