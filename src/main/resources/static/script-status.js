@@ -38,7 +38,7 @@ const lastUpdatedEl = document.getElementById("lastUpdated");
 
 // Render the IP status table
 async function renderStatusTable() {
-  const resp = await fetchWithAuth('http://localhost:9090/api/ip');
+  const resp = await fetchWithAuth('http://192.168.3.8:9090/api/ip');
   if (!resp) return; // fetchWithAuth already handles redirect on failure
 
   const ipData = await resp.json();

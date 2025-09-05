@@ -41,28 +41,35 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/auth/**", // Includes forgot-password and reset-password APIs
-                                "/reset-password.html", // Reset password page accessible without login
-                                "/auth.html",
-                                "/index.html",
-                                "/status.html",
-                                "/index.css",
-                                "/script-index.js",
-                                "/script-status.js",
-                                "/images/**")
-                        .permitAll()
-                        .anyRequest().permitAll())
-                .httpBasic().disable();
+        http.cors();
+        http.csrf().disable();
+
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                        "/api/auth/**",
+                        "/api/ip/**",
+                        "/auth.html",
+                        "/index.html",
+                        "/status.html",
+                        "/reset-password.html",
+                        "/css/**",
+                        "/js/**",
+                        "/images/**",
+                        "/favicon.ico",
+                        "/login.css",
+                        "/IT-LOGO.png",
+                        "/index.css",
+                        "/script-index.js",
+                        "/script-status.js",
+                        "/suprajit_logo_BG.png",
+                        "/suprajit_logo.png",
+                        "/script.js")
+                .permitAll()
+                .anyRequest().authenticated());
+
+        http.httpBasic().disable();
 
         return http.build();
     }
 
-    // Optional: remove this if unused
-    // @Autowired
-    // public void configure(AuthenticationManagerBuilder auth) {
-    // auth.authenticationProvider(authenticationProvider());
-    // }
 }

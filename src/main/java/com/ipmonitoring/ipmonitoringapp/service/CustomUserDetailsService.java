@@ -24,9 +24,14 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
+
         UserBuilder builder = org.springframework.security.core.userdetails.User.withUsername(username);
         builder.password(user.getPassword());
-        builder.roles("USER"); // simple role, can customize later
+
+        // Use the role from the user entity (make sure the role is stored properly in
+        // DB)
+        builder.roles(user.getRole());
+
         return builder.build();
     }
 }

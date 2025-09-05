@@ -4,6 +4,8 @@ import java.net.InetAddress;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -18,59 +20,56 @@ public class IpHealthCheckService {
 
     private final IpAddressRepository repository;
     private final IpStatusHistoryRepository historyRepository;
+    private final ExecutorService executor = Executors.newFixedThreadPool(10); // Thread pool for parallel checks
 
     public IpHealthCheckService(IpAddressRepository repository, IpStatusHistoryRepository historyRepository) {
         this.repository = repository;
         this.historyRepository = historyRepository;
     }
 
-    @Scheduled(fixedDelay = 600000) // every 10 minutes (600,000 ms)
+    @Scheduled(fixedDelay = 2000) // every 2 seconds
     public void healthCheckAllIps() {
         List<IpAddress> ips = repository.findAll();
         for (IpAddress ipAddress : ips) {
-            String previousStatus = ipAddress.getStatus();
-            LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
-            String newStatus = "Error";
-
-            try {
-                InetAddress inet = InetAddress.getByName(ipAddress.getIp());
-                boolean reachable = inet.isReachable(2000); // 2s timeout
-                newStatus = reachable ? "Online" : "Down";
-            } catch (Exception e) {
-                newStatus = "Error";
-            }
-
-            // Update last checked time
-            ipAddress.setLastChecked(now);
-
-            if (previousStatus == null || !newStatus.equals(previousStatus)) {
-                ipAddress.setStatusChangeCount(ipAddress.getStatusChangeCount() + 1);
-                ipAddress.setLastStatusChangeStart(ipAddress.getLastStatusChangeEnd() != null ? ipAddress.getLastStatusChangeEnd() : now);
-                ipAddress.setLastStatusChangeEnd(now);
-                ipAddress.setStatus(newStatus);
-            } else {
-                ipAddress.setStatus(newStatus);
-            }
-
-            repository.save(ipAddress);
-
-            // Always save history record every 10 minutes regardless of status change
-            IpStatusHistory history = new IpStatusHistory();
-            history.setIpId(ipAddress.getId());
-            history.setLocation(ipAddress.getLocation());
-            history.setIp(ipAddress.getIp());
-            history.setStatus(newStatus);
-            history.setCheckedAt(now);
-            history.setStatusChangeCount(ipAddress.getStatusChangeCount());
-
-            historyRepository.save(history);
+            executor.submit(() -> checkAndUpdateStatus(ipAddress));
         }
     }
 
-    // Scheduled task to clean up old status history records
-    @Scheduled(cron = "0 0 0 * * ?") // runs daily at midnight
-    public void cleanOldStatusHistory() {
-        LocalDateTime cutoff = LocalDateTime.now(ZoneId.of("Asia/Kolkata")).minusDays(3);
-        historyRepository.deleteByCheckedAtBefore(cutoff);
+    private void checkAndUpdateStatus(IpAddress ipAddress) {
+        String previousStatus = ipAddress.getStatus();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
+        String newStatus = "Error";
+
+        try {
+            InetAddress inet = InetAddress.getByName(ipAddress.getIp());
+            boolean reachable = inet.isReachable(2000); // 2 seconds timeout
+            newStatus = reachable ? "Online" : "Down";
+        } catch (Exception e) {
+            newStatus = "Error";
+        }
+
+        ipAddress.setLastChecked(now);
+
+        if (previousStatus == null || !newStatus.equals(previousStatus)) {
+            ipAddress.setStatusChangeCount(ipAddress.getStatusChangeCount() + 1);
+            ipAddress.setLastStatusChangeStart(
+                    ipAddress.getLastStatusChangeEnd() != null ? ipAddress.getLastStatusChangeEnd() : now);
+            ipAddress.setLastStatusChangeEnd(now);
+            ipAddress.setStatus(newStatus);
+        } else {
+            ipAddress.setStatus(newStatus);
+        }
+
+        repository.save(ipAddress);
+
+        IpStatusHistory history = new IpStatusHistory();
+        history.setIpId(ipAddress.getId());
+        history.setLocation(ipAddress.getLocation());
+        history.setIp(ipAddress.getIp());
+        history.setStatus(newStatus);
+        history.setCheckedAt(now);
+        history.setStatusChangeCount(ipAddress.getStatusChangeCount());
+
+        historyRepository.save(history);
     }
 }

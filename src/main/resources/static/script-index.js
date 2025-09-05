@@ -35,7 +35,7 @@ async function fetchWithAuth(url, options = {}) {
 // --- TABLE RENDERING ---
 async function renderTable() {
     // const response = await fetchWithAuth('http://localhost:9090/api/ip');
-    const response = await fetchWithAuth('http://localhost:9090/api/ip');
+    const response = await fetchWithAuth('http://192.168.3.8:9090/api/ip');
     if (!response) return;
     let ipData = [];
     try {
@@ -168,7 +168,7 @@ ipForm.addEventListener("submit", async (e) => {
     formData.append("ip", ip);
     formData.append("username", currentUser.username);
 
-    const response = await fetchWithAuth('http://localhost:9090/api/ip', {
+    const response = await fetchWithAuth('http://192.168.3.8:9090/api/ip', {
         method: 'POST',
         body: formData.toString()
     });
@@ -233,13 +233,13 @@ async function sendAdminRequest(url, identifier) {
 // Add Admin button click
 addAdminBtn.addEventListener('click', () => {
     const identifier = adminIdentifierInput.value;
-    sendAdminRequest('http://localhost:9090/api/auth/promote-admin', identifier);
+    sendAdminRequest('http://192.168.3.8:9090/api/auth/promote-admin', identifier);
 });
 
 // Remove Admin button click
 removeAdminBtn.addEventListener('click', () => {
     const identifier = adminIdentifierInput.value;
-    sendAdminRequest('http://localhost:9090/api/auth/demote-admin', identifier);
+    sendAdminRequest('http://192.168.3.8:9090/api/auth/demote-admin', identifier);
 });
 
 // Initial table render and periodic refresh
