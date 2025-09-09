@@ -1,3 +1,4 @@
+
 package com.ipmonitoring.ipmonitoringapp;
 
 import org.springframework.context.annotation.Bean;

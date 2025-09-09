@@ -49,6 +49,8 @@ public class SecurityConfig {
                         "/api/auth/**",
                         "/api/ip/**",
                         "/auth.html",
+                        "/clock.html",
+                        "/dashboard.html",
                         "/index.html",
                         "/status.html",
                         "/reset-password.html",

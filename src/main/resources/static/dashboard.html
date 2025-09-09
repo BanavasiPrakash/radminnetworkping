@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard - Status & Clocks</title>
+  <!-- Seven Segment font for clock -->
+  <link href="https://fonts.cdnfonts.com/css/seven-segment" rel="stylesheet" />
+  <style>
+    html, body {
+      margin: 0; padding: 0; height: 100vh; overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .viewport {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+    .slider {
+      display: flex;
+      width: 200vw; /* two full viewport widths */
+      height: 100%;
+      transition: transform 0.7s ease;
+    }
+    .page {
+      width: 100vw;
+      height: 100%;
+      flex-shrink: 0;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+    /* Status page styles (based on your status.html) */
+    .status-page header {
+      display: flex;
+      align-items: center;
+      gap: 140px;
+      max-width: 1450px;
+      margin: 0 auto 20px;
+      padding-left: 0;
+      padding-right: 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .status-page header img.suprajit-logo {
+      height: 100px;
+      width: auto;
+      display: block;
+      align-self: center;
+    }
+    .status-page .title-and-updated1 {
+      margin: 0;
+      font-size: 25px;
+      font-weight: 700;
+      color: hsl(0, 4%, 95%);
+      white-space: nowrap;
+      flex: 1;
+      text-align: center;
+    }
+    .status-page h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: 2rem;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 12px #0f53d24c;
+      margin-bottom: 6px;
+      color: hsl(210, 17%, 98%);
+    }
+    .status-page #lastUpdated {
+      margin: 0;
+      font-size: 25px;
+      color: hsl(0, 4%, 95%);
+      white-space: nowrap;
+    }
+    .status-page .status-legend {
+      margin-top: 8px;
+      display: inline-flex;
+      justify-content: center;
+      gap: 20px;
+      font-weight: 800;
+      color: hsl(0, 4%, 95%);
+    }
+    .status-page .status-legend-box {
+      min-width: 70px;
+      padding: 4px 12px;
+      border-radius: 4px;
+      color: white;
+      font-weight: 900;
+      text-align: center;
+    }
+    .status-page .status-green {
+      background-color: #8FC63D;
+    }
+    .status-page .status-red {
+      background-color: #bd2331;
+    }
+    .status-page main {
+      max-width: 1350px;
+      margin: 0 auto;
+      padding: 0 20px 20px 20px;
+      box-sizing: border-box;
+    }
+    #statusTable {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 10px 10px;
+      margin: 0 auto;
+      background: transparent;
+    }
+    #statusTable th {
+      background: #1e4489;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 900;
+      padding: 6px 10px;
+      height: auto;
+      line-height: normal;
+      border-bottom: 3px solid #1e4489;
+    }
+    #statusTable td {
+      padding: 5px 8px;
+      font-size: 14px;
+      min-width: 0;
+      max-width: 150px;
+      line-height: 1.1;
+      height: 22px;
+      border: 1px solid #606060;
+      border-radius: 60px;
+      text-align: center;
+    }
+    #statusTable tbody tr:nth-child(even) td {
+      background: #e6f2fb;
+    }
+
+    /* Clock page styles (from your clock.html) */
+    .clock-page {
+      background: #000;
+      color: #fff;
+      overflow-y: auto;
+      box-sizing: border-box;
+      padding: 20px;
+    }
+    .clock-page h1 {
+      font-size: 8rem;
+      color: #ff1616;
+      font-family: 'Seven Segment', monospace;
+      margin: 0 0 3vh 0;
+      user-select: none;
+      text-align: center;
+    }
+    .clock-card {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 20px;
+      padding: 0 40px 30px 40px;
+      width: 100%;
+      height: 78vh;
+      background: #11040c;
+      border-radius: 30px;
+      box-shadow: 0 0 90px #ff161688, inset 0 0 40px #330a0a88;
+      box-sizing: border-box;
+    }
+    .clock {
+      background: rgba(0, 0, 0, 0.45);
+      border: 2.5px solid #ff1616cc;
+      border-radius: 16px;
+      padding: 20px 14px;
+      box-shadow:
+        0 0 18px rgba(255, 22, 22, 0.15),
+        inset 0 0 12px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+    }
+    .clock h3 {
+      margin: 0 0 14px 0;
+      font-size: 2.2rem;
+      color: #fff;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-shadow: 0 0 11px #ff161644;
+      font-family: inherit;
+      text-transform: uppercase;
+    }
+    .time {
+      font-family: 'Seven Segment', monospace;
+      font-size: 5rem;
+      font-weight: 900;
+      color: #ff1616;
+      letter-spacing: 0.20em;
+      padding: 10px 24px;
+      border-radius: 10px;
+      min-width: 280px;
+      background: rgba(0, 0, 0, 0.25);
+      text-align: center;
+      box-sizing: border-box;
+    }
+    @media (max-width: 1200px) {
+      .clock-card {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(6, 1fr);
+        height: auto;
+        padding: 34px 36px;
+      }
+      .time {
+        font-size: 4.4rem;
+        min-width: 230px;
+      }
+      .clock h3 {
+        font-size: 1.9rem;
+      }
+    }
+    @media (max-width: 760px) {
+      .clock-card {
+        grid-template-columns: 1fr;
+        grid-template-rows: unset;
+        height: auto;
+        padding: 28px 20px;
+        gap: 24px 0;
+      }
+      .time {
+        font-size: 3.6rem;
+        min-width: auto;
+      }
+      .clock h3 {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="viewport">
+    <div class="slider" id="slider">
+      <!-- Status Page Section -->
+      <div class="page status-page">
+        <header>
+          <img src="suprajit_logo_BG.png" alt="Left Logo" class="suprajit-logo" />
+          <div class="title-and-updated1">
+            <div class="title-container">
+              <h1>CONNECTIVITY STATUS</h1>
+            </div>
+            <div class="centered-below-title">
+              <p id="lastUpdated">Last Updated: --</p>
+              <div class="status-legend">
+                <div><span class="status-legend-box status-green">Online</span></div>
+                <div><span class="status-legend-box status-red">Down</span></div>
+              </div>
+            </div>
+          </div>
+          <img src="IT-LOGO.png" alt="Right Logo" class="suprajit-logo" />
+        </header>
+        <main>
+          <table id="statusTable">
+            <tbody>
+            <!-- Status data will be dynamically inserted here by script -->
+            </tbody>
+          </table>
+        </main>
+      </div>
+
+      <!-- Clock Page Section -->
+      <div class="page clock-page">
+        <h1>World Clocks</h1>
+        <div class="clock-card">
+          <!-- Repeat clocks as in your clock.html -->
+          <div class="clock" data-timezone="Asia/Kolkata">
+            <h3>INDIA</h3>
+            <div class="time">--:--:--</div>
+          </div>
+          <div class="clock" data-timezone="Asia/Shanghai">
+            <h3>CHINA</h3>
+            <div class="time">--:--:--</div>
+          </div>
+          <div class="clock" data-timezone="America/Chicago">
+            <h3>WICHITA ( USA )</h3>
+            <div class="time">--:--:--</div>
+          </div>
+          <div class="clock" data-timezone="America/Detroit">
+            <h3>NOVI ( USA )</h3>
+            <div class="time">--:--:--</div>
+          </div>
+          <div class="clock" data-timezone="America/Chicago">
+            <h3>BROWNSVILLE ( USA )</h3>
+            <div class="time">--:--:--</div>
+          </div>
+          <div class="clock" data-timezone="America/Monterrey">
+            <h3>MATAMOROS ( MEXICO )</h3>
+            <div class="time">--:--:--</div>
+          </div>
+          <div class="clock" data-timezone="America/Chihuahua">
+            <h3>JUAREZ ( MEXICO )</h3>
+            <div class="time">--:--:--</div>
+          </div>
+          <div class="clock" data-timezone="America/Toronto">
+            <h3>CANADA</h3>
+            <div class="time">--:--:--</div>
+          </div>
+          <div class="clock" data-timezone="Europe/Berlin">
+            <h3>GERMANY</h3>
+            <div class="time">--:--:--</div>
+          </div>
+          <div class="clock" data-timezone="Europe/London">
+            <h3>UK</h3>
+            <div class="time">--:--:--</div>
+          </div>
+          <div class="clock" data-timezone="Europe/Budapest">
+            <h3>HUNGARY</h3>
+            <div class="time">--:--:--</div>
+          </div>
+          <div class="clock" data-timezone="Africa/Casablanca">
+            <h3>MOROCCO</h3>
+            <div class="time">--:--:--</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Your status page script (update status table, etc.) -->
+  <script src="script-status.js"></script>
+
+  <script>
+    // Clock update script (adapted from your scripts)
+    function updateClocks() {
+      const clocks = document.querySelectorAll('.clock');
+      const now = new Date();
+      clocks.forEach(clock => {
+        const timezone = clock.getAttribute('data-timezone');
+        const timeElement = clock.querySelector('.time');
+        const options = {
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          timeZone: timezone
+        };
+        try {
+          const timeString = now.toLocaleTimeString('en-US', options);
+          timeElement.textContent = timeString;
+        } catch (e) {
+          timeElement.textContent = "Err";
+        }
+      });
+    }
+    setInterval(updateClocks, 1000);
+    updateClocks();
+  </script>
+
+  <script>
+    // Slider script to toggle between pages every 30 seconds
+    const slider = document.getElementById('slider');
+    let currentIndex = 0;
+    setInterval(() => {
+      currentIndex = (currentIndex + 1) % 2; // toggle between 0 and 1
+      slider.style.transform = `translateX(-${currentIndex * 100}vw)`;
+    }, 30000);
+  </script>
+</body>
+</html>
