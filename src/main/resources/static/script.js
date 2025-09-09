@@ -35,7 +35,7 @@ async function submitSignup(event) {
 
   try {
     const body = email ? {username, email, password} : {username, password};
-    const res = await fetch('http://192.168.3.8:9090/api/auth/signup', {
+    const res = await fetch('http://192.168.3.8:8080/api/auth/signup', {
       method: 'POST',
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       body: new URLSearchParams(body)
@@ -65,7 +65,7 @@ async function submitLogin(event) {
   msg.className = 'message';
 
   try {
-    const res = await fetch('http://192.168.3.8:9090/api/auth/login', {
+    const res = await fetch('http://192.168.3.8:8080/api/auth/login', {
       method: 'POST',
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       body: new URLSearchParams({username, password})
@@ -115,7 +115,7 @@ async function submitForgotPassword() {
   }
 
   try {
-    const res = await fetch('http://192.168.3.8:9090/api/auth/forgot-password', {
+    const res = await fetch('http://192.168.3.8:8080/api/auth/forgot-password', {
       method: 'POST',
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       body: new URLSearchParams({email})

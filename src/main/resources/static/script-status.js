@@ -38,7 +38,7 @@ const lastUpdatedEl = document.getElementById("lastUpdated");
 
 // Render the IP status table
 async function renderStatusTable() {
-  const resp = await fetchWithAuth('http://192.168.3.8:9090/api/ip');
+  const resp = await fetchWithAuth('http://192.168.3.8:8080/api/ip');
   if (!resp) return; // fetchWithAuth already handles redirect on failure
 
   const ipData = await resp.json();
@@ -50,7 +50,7 @@ async function renderStatusTable() {
     return 0;
   });
 
-  const columns = 6;  // number of columns per row
+  const columns = 4;  // number of columns per row
   for (let i = 0; i < ipData.length; i += columns) {
     const row = document.createElement("tr");
     for (let j = 0; j < columns; j++) {
@@ -85,5 +85,5 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
   renderStatusTable();
-  setInterval(renderStatusTable, 10000); // update every 10 seconds
+  setInterval(renderStatusTable, 2000); // update every 10 seconds
 });

@@ -51,7 +51,8 @@ body {
 
 .title-and-updated #lastUpdated {
     margin: 8px 0 0 0;
-    font-size: 16px;
+    font-size: 28px !important;
+    font-weight: 800;
     color: hsl(0, 4%, 95%);
     text-align: center;
     white-space: nowrap;

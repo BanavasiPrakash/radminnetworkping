@@ -27,16 +27,27 @@ body {
 .header-container-vertical {
     display: flex;
     align-items: center;
-    gap: 140px; /* Large gap unchanged */
+    gap: 140px;
     max-width: 1450px;
     margin: 0 auto 20px auto;
-    padding: 0 25px;
+    padding-left: 0;     /* remove left padding */
+    padding-right: 0;    /* remove right padding */
     width: 100%;
     box-sizing: border-box;
 }
 
+.header-container-vertical > img.suprajit-logo:first-child {
+    margin-left: 0;     /* flush left logo to left edge */
+}
+
+.header-container-vertical > img.suprajit-logo:last-child {
+    margin-left: auto;  /* push right logo to far right */
+    margin-right: 0;    /* no right margin */
+}
+
+
 .suprajit-logo {
-    height: 90px;
+    height: 100px;
     width: auto;
     display: block;
     align-self: center; /* Vertically center the logo */
@@ -47,6 +58,7 @@ body {
     flex-direction: column;
     align-items: flex-start; /* Title text left aligned */
     flex: 1;
+    
 }
 
 .title-and-updated h1 {
@@ -58,22 +70,28 @@ body {
     letter-spacing: 2px;
     text-shadow: 0 2px 12px #0f53d24c;
     text-align: center;
+    
 }
 
 .title-and-updated1 h1 {
     margin: 0;
+    margin-left: 120px; 
     color: hsl(210, 17%, 98%);
     font-family: 'Playfair Display', serif;
-    font-weight: 1000;
-    font-size: 1.8rem;
+    font-weight: 900;
+    font-size: 2.0rem;
     letter-spacing: 2px;
     text-shadow: 0 2px 12px #0f53d24c;
     text-align: center;
+    white-space: nowrap;   /* Prevent line breaks */
+    overflow: hidden;      /* Hide overflow text */
+    text-overflow: ellipsis; /* Show ... if overflow */
 }
 
 /* NEW: Wrapper to center lastUpdated and legend horizontally */
 .centered-below-title {
     width: 100%;
+    margin-left: 50px;
     text-align: center;
     margin-top: 6px;
 }
@@ -86,7 +104,8 @@ body {
 }
 .title-and-updated1 {
     margin: 0;
-    font-size: 16px;
+    font-size: 25px;
+    font-weight: 700;
     color: hsl(0, 4%, 95%);
     white-space: nowrap;
 }
@@ -97,7 +116,8 @@ body {
     justify-content: center;
     gap: 20px;
     flex-wrap: wrap;
-    font-size: 12px;
+    font-size: 0px;
+    font-weight: 800;
     color: hsl(0, 4%, 95%);
     width: auto;
 }
@@ -220,6 +240,21 @@ form button:focus {
     padding: 5px 8px;
     font-size: 14px;
     
+    min-width: 0;
+    max-width: 150px;
+    line-height: 1.1;
+    height: 22px;
+    border: 1px solid #606060;
+    border-radius: 60px;
+    text-align: center;
+    /* background-color removed to honor status classes in statusTable */
+
+}
+
+#statusTable td {
+    padding: 5px 8px;
+    font-size: 30px;
+    font-weight: 900;
     min-width: 0;
     max-width: 150px;
     line-height: 1.1;
@@ -401,6 +436,7 @@ th {
     border-radius: 4px;
     display: inline-block;
     color: white;
+    font-size: 20px;
     font-weight: 900;
     text-align: center;
     user-select: none;
@@ -438,3 +474,26 @@ body::before {
   0%   { transform: translate(-50%, -50%) rotate(0deg); }
   100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
+.arrow-back {
+    font-size: 15px;
+    color: white;
+    background-color: #80a8f3;
+    padding: 6px 12px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    transition: background-color 0.3s, color 0.3s, transform 0.2s;
+    user-select: none;
+}
+
+.arrow-back:hover {
+    background-color: #1b699c;
+    color: #fff;
+    transform: translateX(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    cursor: pointer;
+}
+

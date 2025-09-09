@@ -9,6 +9,10 @@ if (!currentUser || currentUser.role !== "ADMIN") {
 const ipForm = document.getElementById("ipForm");
 const ipTableBody = document.querySelector("#ipTable tbody");
 
+// Track if edit mode is active (only one edit at a time)
+let isEditing = false;
+let refreshPaused = false; // To pause refresh after save
+
 // Helper fetch wrapper with auth and error handling
 async function fetchWithAuth(url, options = {}) {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
@@ -34,12 +38,27 @@ async function fetchWithAuth(url, options = {}) {
 
 // --- TABLE RENDERING ---
 async function renderTable() {
-    // const response = await fetchWithAuth('http://localhost:9090/api/ip');
-    const response = await fetchWithAuth('http://192.168.3.8:9090/api/ip');
+    if (isEditing) {
+        console.log("Render skipped: editing in progress");
+        return; // Skip rendering while editing
+    }
+    if (refreshPaused) {
+        console.log("Render skipped: refresh paused after save");
+        return; // Skip rendering during pause after save
+    }
+
+    console.log("Fetching IP data for table refresh");
+
+    // Cache-busting by adding timestamp query param to avoid stale cached data
+    const url = `http://192.168.3.8:8080/api/ip?_=${Date.now()}`;
+
+    const response = await fetchWithAuth(url);
     if (!response) return;
+
     let ipData = [];
     try {
         ipData = await response.json();
+        console.log("IP data fetched:", ipData);
     } catch (error) {
         console.error("Failed to parse IP data:", error);
         ipTableBody.innerHTML = `<tr><td colspan="3" style="text-align:center;">Failed to load data</td></tr>`;
@@ -81,8 +100,13 @@ async function renderTable() {
             const locInput = row.querySelector('.edit-location');
             const ipInput = row.querySelector('.edit-ip');
 
-            // Edit button
+            // Edit button event
             editBtn.onclick = () => {
+                if (isEditing) {
+                    alert("Finish current edit first.");
+                    return;
+                }
+                isEditing = true;
                 locSpan.style.display = 'none';
                 ipSpan.style.display = 'none';
                 locInput.style.display = 'inline-block';
@@ -93,8 +117,9 @@ async function renderTable() {
                 deleteBtn.style.display = 'none';
             };
 
-            // Cancel button
+            // Cancel button event
             cancelBtn.onclick = () => {
+                isEditing = false;
                 locInput.value = item.location;
                 ipInput.value = item.ip;
                 locSpan.style.display = '';
@@ -107,7 +132,7 @@ async function renderTable() {
                 deleteBtn.style.display = 'inline-block';
             };
 
-            // Save button
+            // Save button event with immediate UI update, popup, cache-busting, and refresh pause
             saveBtn.onclick = async () => {
                 const newLoc = locInput.value.trim();
                 const newIp = ipInput.value.trim();
@@ -119,23 +144,50 @@ async function renderTable() {
                 formData.append("location", newLoc);
                 formData.append("ip", newIp);
                 formData.append("username", currentUser.username);
-                const updateResponse = await fetchWithAuth(`/api/ip/${item.id}`, {
-                method: 'PUT',
-                body: formData.toString(),
-
-                            });
+                const updateResponse = await fetchWithAuth(`http://192.168.3.8:8080/api/ip/${item.id}`, {
+                    method: 'PUT',
+                    body: formData.toString(),
+                });
                 if (updateResponse && updateResponse.ok) {
-                    renderTable();
+                    alert("IP address and Location saved successfully!");
+
+                    // Immediate UI update without full re-render
+                    locSpan.textContent = newLoc;
+                    ipSpan.textContent = newIp;
+
+                    locSpan.style.display = '';
+                    ipSpan.style.display = '';
+                    locInput.style.display = 'none';
+                    ipInput.style.display = 'none';
+                    editBtn.style.display = 'inline-block';
+                    saveBtn.style.display = 'none';
+                    cancelBtn.style.display = 'none';
+                    deleteBtn.style.display = 'inline-block';
+
+                    isEditing = false;
+
+                    // Pause refresh for 10 seconds to allow backend commit and user to see update
+                    refreshPaused = true;
+                    setTimeout(() => {
+                        refreshPaused = false;
+                        if (!isEditing) {
+                            renderTable();
+                        }
+                    }, 10000);
                 } else {
                     alert("Failed to update IP address.");
                 }
             };
 
-            // Delete button
+            // Delete button event
             deleteBtn.onclick = async () => {
+                if (isEditing) {
+                    alert("Finish current edit before deleting.");
+                    return;
+                }
                 const confirmDelete = confirm("Are you sure you want to delete this IP?");
                 if (!confirmDelete) return;
-                const deleteResponse = await fetchWithAuth(`/api/ip/${item.id}?username=${encodeURIComponent(currentUser.username)}`, {
+                const deleteResponse = await fetchWithAuth(`http://192.168.3.8:8080/api/ip/${item.id}?username=${encodeURIComponent(currentUser.username)}`, {
                     method: 'DELETE',
                 });
                 if (deleteResponse && deleteResponse.ok) {
@@ -168,7 +220,7 @@ ipForm.addEventListener("submit", async (e) => {
     formData.append("ip", ip);
     formData.append("username", currentUser.username);
 
-    const response = await fetchWithAuth('http://192.168.3.8:9090/api/ip', {
+    const response = await fetchWithAuth('http://192.168.3.8:8080/api/ip', {
         method: 'POST',
         body: formData.toString()
     });
@@ -233,15 +285,19 @@ async function sendAdminRequest(url, identifier) {
 // Add Admin button click
 addAdminBtn.addEventListener('click', () => {
     const identifier = adminIdentifierInput.value;
-    sendAdminRequest('http://192.168.3.8:9090/api/auth/promote-admin', identifier);
+    sendAdminRequest('http://192.168.3.8:8080/api/auth/promote-admin', identifier);
 });
 
 // Remove Admin button click
 removeAdminBtn.addEventListener('click', () => {
     const identifier = adminIdentifierInput.value;
-    sendAdminRequest('http://192.168.3.8:9090/api/auth/demote-admin', identifier);
+    sendAdminRequest('http://192.168.3.8:8080/api/auth/demote-admin', identifier);
 });
 
 // Initial table render and periodic refresh
 renderTable();
-setInterval(renderTable, 9000);
+setInterval(() => {
+    if (!isEditing && !refreshPaused) {
+        renderTable();
+    }
+}, 9000);
