@@ -30,7 +30,8 @@ public class IpAddressController {
     private final UserRepository userRepository;
     private final IpAddressService ipAddressService;
 
-    public IpAddressController(IpAddressRepository repo, UserRepository userRepository, IpAddressService ipAddressService) {
+    public IpAddressController(IpAddressRepository repo, UserRepository userRepository,
+            IpAddressService ipAddressService) {
         this.repo = repo;
         this.userRepository = userRepository;
         this.ipAddressService = ipAddressService;
@@ -53,7 +54,8 @@ public class IpAddressController {
                     Long durationSeconds = null;
                     String formattedDuration = "";
                     if (ip.getLastStatusChangeStart() != null && ip.getLastStatusChangeEnd() != null) {
-                        durationSeconds = Duration.between(ip.getLastStatusChangeStart(), ip.getLastStatusChangeEnd()).getSeconds();
+                        durationSeconds = Duration.between(ip.getLastStatusChangeStart(), ip.getLastStatusChangeEnd())
+                                .getSeconds();
                         long hrs = durationSeconds / 3600;
                         long mins = (durationSeconds % 3600) / 60;
                         long secs = durationSeconds % 60;
@@ -72,7 +74,8 @@ public class IpAddressController {
         public int statusChangeCount;
         public String lastStatusDuration;
 
-        public IpStatusDetails(Long id, String location, String ip, String status, int statusChangeCount, String lastStatusDuration) {
+        public IpStatusDetails(Long id, String location, String ip, String status, int statusChangeCount,
+                String lastStatusDuration) {
             this.id = id;
             this.location = location;
             this.ip = ip;
@@ -84,7 +87,7 @@ public class IpAddressController {
 
     @PostMapping
     public ResponseEntity<?> add(@RequestParam String location, @RequestParam String ip,
-                                 @RequestParam String username) {
+            @RequestParam String username) {
         User user = userRepository.findByUsername(username).orElse(null);
         if (user == null || !user.getRole().equals("ADMIN")) {
             return ResponseEntity.status(403).body("Forbidden: Only admin can add IP addresses");

@@ -18,7 +18,6 @@ async function fetchWithAuth(url, options = {}) {
     'Content-Type': 'application/x-www-form-urlencoded',
   };
 
-  // If you use cookie/session authentication, send credentials
   options.credentials = "include";
 
   const response = await fetch(url, options);
@@ -44,6 +43,7 @@ async function renderStatusTable() {
   const ipData = await resp.json();
   statusTableBody.innerHTML = "";
 
+  // Sort Down statuses first
   ipData.sort((a, b) => {
     if (a.status === "Down" && b.status !== "Down") return -1;
     if (a.status !== "Down" && b.status === "Down") return 1;
@@ -57,7 +57,7 @@ async function renderStatusTable() {
       const cell = document.createElement("td");
       const item = ipData[i + j];
       if (item) {
-        let statusClass = "status-orange";
+        let statusClass = "status-orange";  // default degraded
         if (item.status === "Online") statusClass = "status-green";
         else if (item.status === "Down") statusClass = "status-red";
         else if (item.status === "Error") statusClass = "status-orange";
@@ -76,7 +76,7 @@ async function renderStatusTable() {
   lastUpdatedEl.textContent = "Last Updated: " + new Date().toLocaleTimeString();
 }
 
-// Wait for DOM ready and check login session before rendering
+// DOM ready check
 document.addEventListener('DOMContentLoaded', () => {
   const currentUser = getCurrentUser();
   if (!currentUser || !currentUser.username) {
@@ -85,5 +85,5 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
   renderStatusTable();
-  setInterval(renderStatusTable, 2000); // update every 10 seconds
+  setInterval(renderStatusTable, 2000); // update every 2 seconds
 });

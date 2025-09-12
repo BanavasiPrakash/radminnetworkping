@@ -42,6 +42,7 @@
           <p id="lastUpdated">Last Updated: --</p>
           <div class="status-legend">
             <div><span class="status-legend-box status-green">Online</span></div>
+            <div><span class="status-legend-box status-orange">Fluctuation</span></div>
             <div><span class="status-legend-box status-red">Down</span></div>
           </div>
         </div>
@@ -53,16 +54,17 @@
   <main>
     <table id="statusTable">
       <tbody>
-        <!-- Dynamic rows via script -->
+        <!-- Dynamic rows inserted here -->
       </tbody>
     </table>
     <div class="navigation">
       <a href="index.html" class="arrow-back" aria-label="Back to Entry Page">&#8592;</a>
     </div>
   </main>
+
   <script src="script-status.js"></script>
 
-  <!-- Redirect to clock.html after 30 seconds -->
+  <!-- Redirect to clock.html after 20 seconds -->
   <script>
     setTimeout(() => {
       window.location.href = 'clock.html';
