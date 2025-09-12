@@ -7,9 +7,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
@@ -42,9 +42,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors();
-        http.csrf().disable();
+
+        // Disable CSRF only for /api/auth/** endpoints
+        http.csrf().ignoringRequestMatchers("/api/auth/**");
 
         http.authorizeHttpRequests(auth -> auth
+                // Allow unauthenticated access to /api/auth/** and static resources
                 .requestMatchers(
                         "/api/auth/**",
                         "/api/ip/**",
@@ -73,5 +76,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 }
